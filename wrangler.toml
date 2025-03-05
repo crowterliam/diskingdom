@@ -1,13 +1,19 @@
-name = "diskingdom"
+name = "harper"
 main = "./src/server.js"
 compatibility_date="2023-05-18"
 
-# KV Namespace for storing Kingdoms & Warfare data
+# KV Namespace for storing recording data
 kv_namespaces = [
-  { binding = "KNW_DATA", id = "4101674ab4124ae483f7b121dad078b5" }
+  { binding = "HARPER_DATA", id = "4101674ab4124ae483f7b121dad078b5" }
+]
+
+# R2 Bucket for storing audio recordings and transcriptions
+r2_buckets = [
+  { binding = "RECORDINGS_BUCKET", bucket_name = "harper-recordings" }
 ]
 
 # [secrets]
 # DISCORD_TOKEN
 # DISCORD_PUBLIC_KEY
 # DISCORD_APPLICATION_ID
+# GROQ_API_KEY

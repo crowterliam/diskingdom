@@ -1,5 +1,6 @@
 /**
  * The core server that runs on a Cloudflare worker.
+ * Handles Discord interactions for the Harper bot.
  */
 
 import { AutoRouter } from 'itty-router';
@@ -7,11 +8,14 @@ import {
   InteractionResponseType,
   InteractionType,
   verifyKey,
+  InteractionResponseFlags
 } from 'discord-interactions';
 import { ALL_COMMANDS } from './commands.js';
-import { handleWarfareCommand } from './knw/commands/warfare.js';
-import { handleIntrigueCommand } from './knw/commands/intrigue.js';
-import { InteractionResponseFlags } from 'discord-interactions';
+import { 
+  handleRecordCommand,
+  handleRecordingsCommand,
+  handleTranscriptionCommand
+} from './recording/commands/index.js';
 
 class JsonResponse extends Response {
   constructor(body, init) {
@@ -59,11 +63,14 @@ router.post('/', async (request, env) => {
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
-      case 'warfare':
-        return await handleWarfareCommand(interaction, env);
+      case 'record':
+        return await handleRecordCommand(interaction, env);
       
-      case 'intrigue':
-        return await handleIntrigueCommand(interaction, env);
+      case 'recordings':
+        return await handleRecordingsCommand(interaction, env);
+      
+      case 'transcription':
+        return await handleTranscriptionCommand(interaction, env);
       
       default:
         console.error(`Unknown command: ${interaction.data.name}`);
