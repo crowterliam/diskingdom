@@ -98,7 +98,7 @@ export function addDomain(battle, domainId) {
  */
 export function removeDomain(battle, domainId) {
   // Remove the domain
-  const updatedBattle = {
+  let updatedBattle = {
     ...battle,
     domains: battle.domains.filter(id => id !== domainId),
     updated: new Date().toISOString(),

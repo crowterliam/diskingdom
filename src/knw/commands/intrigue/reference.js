@@ -6,7 +6,6 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { DOMAIN_SKILLS, DOMAIN_DEFENSES } from '../../models/domain.js';
 import { INTRIGUE_PHASES, INTRIGUE_ACTION_TYPES } from '../../models/intrigue.js';
-import { formatReference } from '../../utils/formatter.js';
 
 /**
  * Handle reference commands
@@ -20,7 +19,7 @@ export async function handleReferenceCommand(interaction, env) {
   
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { content: formatReference(topic) },
+    data: { content: formatReferenceInfo(topic) },
   };
 }
 
@@ -29,7 +28,7 @@ export async function handleReferenceCommand(interaction, env) {
  * @param {String} topic - Topic to get reference for
  * @returns {String} - Formatted reference information
  */
-function formatReference(topic) {
+function formatReferenceInfo(topic) {
   switch (topic) {
     case 'intrigue':
       return formatIntrigueReference();
