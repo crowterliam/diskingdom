@@ -4,7 +4,7 @@ compatibility_date="2023-05-18"
 
 # KV Namespace for storing Kingdoms & Warfare data
 kv_namespaces = [
-  { binding = "KNW_DATA", id = "your-kv-namespace-id-here" }
+  { binding = "KNW_DATA", id = "KNW_DATA" }
 ]
 
 # [secrets]
