@@ -33,7 +33,7 @@ export const KEY_PREFIXES = {
  * @returns {Boolean} - Whether we're in a Cloudflare Worker environment
  */
 export function isCloudflareEnvironment(env) {
-  return env && env[DEFAULT_NAMESPACE];
+  return env && typeof env === 'object' && env[DEFAULT_NAMESPACE];
 }
 
 /**
@@ -43,7 +43,23 @@ export function isCloudflareEnvironment(env) {
  * @returns {Object} - KV namespace
  */
 export function getKVNamespace(env, namespace = DEFAULT_NAMESPACE) {
-  return env[namespace];
+  // If namespace is a string and env has that namespace, return it
+  if (typeof namespace === 'string' && env && env[namespace]) {
+    return env[namespace];
+  }
+  
+  // If env is null or undefined, return null
+  if (!env) {
+    return null;
+  }
+  
+  // If namespace is the actual KV namespace object, return it
+  if (typeof namespace === 'object' && namespace !== null) {
+    return namespace;
+  }
+  
+  // Default to the default namespace
+  return env[DEFAULT_NAMESPACE];
 }
 
 /**
