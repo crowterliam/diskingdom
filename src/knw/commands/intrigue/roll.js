@@ -4,7 +4,8 @@
  */
 
 import { InteractionResponseType } from 'discord-interactions';
-import { rollSkillCheck, formatRollResult } from '../../utils/dice.js';
+import { rollSkillCheck } from '../../utils/dice.js';
+import { formatDiceRoll } from '../../utils/formatter.js';
 import { capitalizeFirstLetter } from './index.js';
 
 /**
@@ -33,6 +34,6 @@ export async function handleRollCommand(interaction, env) {
   
   return {
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { content: `**${capitalizeFirstLetter(skill)} Check**\n${formatRollResult(rollResult)}` },
+    data: { content: `**${capitalizeFirstLetter(skill)} Check**\n${formatDiceRoll(rollResult)}` },
   };
 }

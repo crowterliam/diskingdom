@@ -6,8 +6,8 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { createIntrigue, INTRIGUE_PHASES, createSkillTestAction } from '../../models/intrigue.js';
 import { saveIntrigue, getIntrigue, deleteIntrigue, getDomain, getServerData, saveServerData } from '../../utils/storage.js';
-import { formatIntrigue } from '../../utils/formatter.js';
-import { rollSkillCheck, formatRollResult } from '../../utils/dice.js';
+import { formatIntrigue, formatDiceRoll } from '../../utils/formatter.js';
+import { rollSkillCheck } from '../../utils/dice.js';
 import { KV_NAMESPACE, formatIntrigueAction } from './index.js';
 
 /**
@@ -444,7 +444,7 @@ async function handleSessionAction(interaction, env) {
     });
     
     // Update the action with the result
-    action.result = formatRollResult(rollResult);
+    action.result = formatDiceRoll(rollResult);
     
     // Update the intrigue session
     const updatedIntrigue = { ...intrigue };
