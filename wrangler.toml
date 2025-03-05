@@ -1,6 +1,11 @@
-name = "awwbot"
+name = "diskingdom"
 main = "./src/server.js"
 compatibility_date="2023-05-18"
+
+# KV Namespace for storing Kingdoms & Warfare data
+kv_namespaces = [
+  { binding = "KNW_DATA", id = "your-kv-namespace-id-here" }
+]
 
 # [secrets]
 # DISCORD_TOKEN

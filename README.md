@@ -1,145 +1,206 @@
-# Cloudflare worker example app
+# DIS Kingdom - Discord Bot for Kingdoms & Warfare
 
-awwbot is an example app that brings the cuteness of `r/aww` straight to your Discord server, hosted on Cloudflare workers. Cloudflare Workers are a convenient way to host Discord bots due to the free tier, simple development model, and automatically managed environment (no VMs!).
+A Discord bot for managing Kingdoms & Warfare campaigns, built on Cloudflare Workers. This bot provides comprehensive tools for managing domains, units, battles, and intrigue sessions from the MCDM Productions' Kingdoms & Warfare supplement for Dungeons & Dragons 5th Edition.
 
-The tutorial for building awwbot is [in the developer documentation](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers)
+## Features
 
-![awwbot in action](https://user-images.githubusercontent.com/534619/157503404-a6c79d1b-f0d0-40c2-93cb-164f9df7c138.gif)
+- **Domain Management**: Create and manage political domains with skills, defenses, and resources
+- **Unit Management**: Create and track military units with stats, conditions, and traits
+- **Battle System**: Run warfare battles with unit deployment, initiative tracking, and combat resolution
+- **Intrigue System**: Conduct political intrigue sessions with skill tests and domain actions
+- **Dice Rolling**: Specialized dice rolling for warfare and intrigue mechanics
+- **Reference Information**: Quick access to rules and reference information
 
-## Resources used
-
-- [Discord Interactions API](https://discord.com/developers/docs/interactions/receiving-and-responding)
-- [Cloudflare Workers](https://workers.cloudflare.com/) for hosting
-- [Reddit API](https://www.reddit.com/dev/api/) to send messages back to the user
-
----
-
-## Project structure
-
-Below is a basic overview of the project structure:
+## Project Structure
 
 ```
-├── .github/workflows/ci.yaml -> Github Action configuration
 ├── src
-│   ├── commands.js           -> JSON payloads for commands
-│   ├── reddit.js             -> Interactions with the Reddit API
-│   ├── register.js           -> Sets up commands with the Discord API
-│   ├── server.js             -> Discord app logic and routing
-├── test
-|   ├── test.js               -> Tests for app
-├── wrangler.toml             -> Configuration for Cloudflare workers
-├── package.json
-├── README.md
-├── .eslintrc.json
-├── .prettierignore
-├── .prettierrc.json
-└── .gitignore
+│   ├── commands.js                -> Command registration
+│   ├── register.js                -> Sets up commands with Discord API
+│   ├── server.js                  -> Main server and request handling
+│   ├── knw/                       -> Kingdoms & Warfare specific code
+│   │   ├── commands/              -> Command handlers
+│   │   │   ├── warfare/           -> Warfare command implementations
+│   │   │   └── intrigue/          -> Intrigue command implementations
+│   │   ├── models/                -> Data models
+│   │   └── utils/                 -> Utility functions
+│   │       ├── dice.js            -> Dice rolling utilities
+│   │       ├── formatter.js       -> Message formatting utilities
+│   │       ├── storage.js         -> Storage interface (backward compatibility)
+│   │       └── storage/           -> Modular storage system
+│   │           ├── core.js        -> Core storage functions
+│   │           ├── unit.js        -> Unit storage
+│   │           ├── domain.js      -> Domain storage
+│   │           ├── battle.js      -> Battle storage
+│   │           ├── intrigue.js    -> Intrigue storage
+│   │           ├── discord.js     -> Discord-related storage
+│   │           └── index.js       -> Main entry point
+├── wrangler.toml                  -> Cloudflare Workers configuration
+└── package.json
 ```
 
-## Configuring project
+## Setup Guide
 
-Before starting, you'll need a [Discord app](https://discord.com/developers/applications) with the following permissions:
+### Prerequisites
 
-- `bot` with the `Send Messages` and `Use Slash Command` permissions
-- `applications.commands` scope
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [npm](https://www.npmjs.com/) (usually comes with Node.js)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) for Cloudflare Workers
+- A [Discord Developer Account](https://discord.com/developers/applications)
 
-> ⚙️ Permissions can be configured by clicking on the `OAuth2` tab and using the `URL Generator`. After a URL is generated, you can install the app by pasting that URL into your browser and following the installation flow.
+### Step 1: Discord Application Setup
 
-## Creating your Cloudflare worker
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Click "New Application" and give it a name (e.g., "DIS Kingdom")
+3. Navigate to the "Bot" tab and click "Add Bot"
+4. Under the "Privileged Gateway Intents" section, enable any necessary intents
+5. Under the "Token" section, click "Reset Token" and copy the new token (you'll need this later)
+6. Navigate to the "OAuth2" tab
+7. Under "OAuth2 URL Generator", select the following scopes:
+   - `applications.commands`
+   - `bot`
+8. Under "Bot Permissions", select:
+   - `Send Messages`
+   - `Use Slash Commands`
+   - `Embed Links` (for formatted messages)
+9. Copy the generated URL and open it in a browser to add the bot to your server
 
-Next, you'll need to create a Cloudflare Worker.
+### Step 2: Cloudflare Setup
 
-- Visit the [Cloudflare dashboard](https://dash.cloudflare.com/)
-- Click on the `Workers` tab, and create a new service using the same name as your Discord bot
+1. Create a [Cloudflare account](https://dash.cloudflare.com/sign-up) if you don't have one
+2. Navigate to the Workers section
+3. Create a new Worker with the name "diskingdom" (or your preferred name)
+4. Create a new KV Namespace:
+   - Go to "KV" under Workers
+   - Click "Create namespace"
+   - Name it "KNW_DATA"
+   - Copy the Namespace ID (you'll need this for configuration)
 
-## Running locally
+### Step 3: Local Development Setup
 
-First clone the project:
+1. Clone this repository:
+   ```
+   git clone https://github.com/yourusername/diskingdom.git
+   cd diskingdom
+   ```
 
-```
-git clone https://github.com/discord/cloudflare-sample-app.git
-```
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-Then navigate to its directory and install dependencies:
+3. Configure environment variables:
+   - Rename `example.dev.vars` to `.dev.vars`
+   - Add your Discord credentials:
+     ```
+     DISCORD_TOKEN=your_bot_token
+     DISCORD_PUBLIC_KEY=your_public_key
+     DISCORD_APPLICATION_ID=your_application_id
+     ```
 
-```
-cd cloudflare-sample-app
-npm install
-```
+4. Update the KV namespace ID in `wrangler.toml`:
+   ```toml
+   kv_namespaces = [
+     { binding = "KNW_DATA", id = "your-kv-namespace-id-here" }
+   ]
+   ```
 
-> ⚙️ The dependencies in this project require at least v18 of [Node.js](https://nodejs.org/en/)
+### Step 4: Register Commands
 
-### Local configuration
-
-> 💡 More information about generating and fetching credentials can be found [in the tutorial](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers#storing-secrets)
-
-Rename `example.dev.vars` to `.dev.vars`, and make sure to set each variable.
-
-**`.dev.vars` contains sensitive data so make sure it does not get checked into git**.
-
-### Register commands
-
-The following command only needs to be run once:
-
-```
-$ npm run register
-```
-
-### Run app
-
-Now you should be ready to start your server:
-
-```
-$ npm start
-```
-
-### Setting up ngrok
-
-When a user types a slash command, Discord will send an HTTP request to a given endpoint. During local development this can be a little challenging, so we're going to use a tool called `ngrok` to create an HTTP tunnel.
-
-```
-$ npm run ngrok
-```
-
-![forwarding](https://user-images.githubusercontent.com/534619/157511497-19c8cef7-c349-40ec-a9d3-4bc0147909b0.png)
-
-This is going to bounce requests off of an external endpoint, and forward them to your machine. Copy the HTTPS link provided by the tool. It should look something like `https://8098-24-22-245-250.ngrok.io`. Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint URL" for your bot:
-
-![interactions-endpoint](https://user-images.githubusercontent.com/534619/157510959-6cf0327a-052a-432c-855b-c662824f15ce.png)
-
-This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will _want to update this field to use your Cloudflare Worker URL._
-
-## Deploying app
-
-This repository is set up to automatically deploy to Cloudflare Workers when new changes land on the `main` branch. To deploy manually, run `npm run publish`, which uses the `wrangler publish` command under the hood. Publishing via a GitHub Action requires obtaining an [API Token and your Account ID from Cloudflare](https://developers.cloudflare.com/workers/wrangler/cli-wrangler/authentication/#generate-tokens). These are stored [as secrets in the GitHub repository](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository), making them available to GitHub Actions. The following configuration in `.github/workflows/ci.yaml` demonstrates how to tie it all together:
-
-```yaml
-release:
-  if: github.ref == 'refs/heads/main'
-  runs-on: ubuntu-latest
-  needs: [test, lint]
-  steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-    - run: npm install
-    - run: npm run publish
-      env:
-        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-```
-
-### Storing secrets
-
-The credentials in `.dev.vars` are only applied locally. The production service needs access to credentials from your app:
+Register the bot's commands with Discord:
 
 ```
-$ wrangler secret put DISCORD_TOKEN
-$ wrangler secret put DISCORD_PUBLIC_KEY
-$ wrangler secret put DISCORD_APPLICATION_ID
+npm run register
 ```
 
-## Questions?
+### Step 5: Local Testing
 
-Feel free to post an issue here, or reach out to [@justinbeckwith](https://twitter.com/JustinBeckwith)!
+1. Start the local development server:
+   ```
+   npm start
+   ```
+
+2. In a separate terminal, start ngrok to create a tunnel:
+   ```
+   npm run ngrok
+   ```
+
+3. Copy the HTTPS URL provided by ngrok (e.g., `https://1234-56-78-910-11.ngrok.io`)
+
+4. Update your Discord application's "Interactions Endpoint URL" in the Discord Developer Portal:
+   - Go to your application
+   - Navigate to "General Information"
+   - Paste the ngrok URL in the "Interactions Endpoint URL" field
+   - Add `/` to the end of the URL (e.g., `https://1234-56-78-910-11.ngrok.io/`)
+   - Click "Save Changes"
+
+### Step 6: Deployment
+
+1. Configure Cloudflare Worker secrets:
+   ```
+   wrangler secret put DISCORD_TOKEN
+   wrangler secret put DISCORD_PUBLIC_KEY
+   wrangler secret put DISCORD_APPLICATION_ID
+   ```
+
+2. Deploy to Cloudflare Workers:
+   ```
+   npm run publish
+   ```
+
+3. Update your Discord application's "Interactions Endpoint URL" to your Cloudflare Worker URL:
+   - Go to your application in the Discord Developer Portal
+   - Navigate to "General Information"
+   - Update the "Interactions Endpoint URL" with your Worker URL (e.g., `https://diskingdom.yourusername.workers.dev/`)
+   - Click "Save Changes"
+
+## Usage Guide
+
+### Warfare Commands
+
+- `/warfare unit create` - Create a new military unit
+- `/warfare unit view` - View details of a unit
+- `/warfare unit list` - List all units
+- `/warfare battle create` - Create a new battle
+- `/warfare battle add_domain` - Add a domain to a battle
+- `/warfare battle add_unit` - Add a unit to a battle
+- `/warfare battle deploy_unit` - Deploy a unit on the battlefield
+- `/warfare battle start` - Start a battle
+- `/warfare roll attack` - Roll an attack
+- `/warfare roll damage` - Roll damage
+
+### Intrigue Commands
+
+- `/intrigue domain create` - Create a new domain
+- `/intrigue domain view` - View details of a domain
+- `/intrigue domain list` - List all domains
+- `/intrigue session create` - Create a new intrigue session
+- `/intrigue session action` - Take an action in an intrigue session
+- `/intrigue roll` - Roll a domain skill check
+- `/intrigue reference` - Get reference information
+
+## Storage System
+
+The bot uses a modular storage system that supports both in-memory storage (for development) and Cloudflare KV storage (for production). The storage system is organized into the following components:
+
+- `core.js` - Core storage functions
+- `unit.js` - Unit-specific storage
+- `domain.js` - Domain-specific storage
+- `battle.js` - Battle-specific storage
+- `intrigue.js` - Intrigue-specific storage
+- `discord.js` - Discord-specific storage (server, channel, user)
+- `index.js` - Main entry point that exports all storage functions
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [MCDM Productions](https://www.mcdmproductions.com/) for creating Kingdoms & Warfare
+- [Discord.js](https://discord.js.org/) for the Discord API wrapper
+- [Cloudflare Workers](https://workers.cloudflare.com/) for hosting

@@ -1,7 +1,7 @@
 {
-  "name": "awwbot",
+  "name": "diskingdom",
   "version": "1.0.0",
-  "description": "A simple discord bot that uses intents to post pictures from r/aww",
+  "description": "A Discord bot for managing Kingdoms & Warfare campaigns",
   "type": "module",
   "private": true,
   "main": "src/server.js",
@@ -14,12 +14,20 @@
     "register": "node src/register.js",
     "publish": "wrangler deploy"
   },
-  "keywords": [],
-  "author": "Justin Beckwith <justin.beckwith@gmail.com>",
+  "keywords": [
+    "discord",
+    "bot",
+    "kingdoms",
+    "warfare",
+    "dnd",
+    "rpg"
+  ],
+  "author": "",
   "license": "MIT",
   "dependencies": {
     "discord-interactions": "^4.0.0",
-    "itty-router": "^5.0.9"
+    "itty-router": "^5.0.9",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.1.1",

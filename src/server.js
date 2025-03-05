@@ -8,7 +8,9 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
+import { AWW_COMMAND, INVITE_COMMAND, ALL_COMMANDS } from './commands.js';
+import { handleWarfareCommand } from './knw/commands/warfare.js';
+import { handleIntrigueCommand } from './knw/commands/intrigue.js';
 import { getCuteUrl } from './reddit.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 
@@ -78,8 +80,20 @@ router.post('/', async (request, env) => {
           },
         });
       }
+      case 'warfare':
+        return await handleWarfareCommand(interaction, env);
+      
+      case 'intrigue':
+        return await handleIntrigueCommand(interaction, env);
+      
       default:
-        return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+        console.error(`Unknown command: ${interaction.data.name}`);
+        return new JsonResponse({ 
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Unknown command: ${interaction.data.name}`,
+          },
+        });
     }
   }
 
